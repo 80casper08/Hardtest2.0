@@ -1431,7 +1431,7 @@ qr_questions += [
 hard_questions = [
     {
         "text": "Яких елементів не вистачає на платі KeyPad?",
-        "image": "images/1.jpg",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/1.jpg",
         "options": [
             ("Холдер \"-\"", True),
             ("Резистор", False),
@@ -1441,7 +1441,7 @@ hard_questions = [
     },
     {
         "text": "Яких елементів не вистачає на платі StreetSiren?",
-        "image": "images/2.jpg",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/2.jpg",
         "options": [
             ("Антена", True),
             ("Світлодіод", False),
@@ -1450,5 +1450,4 @@ hard_questions = [
         ]
     }
 ]
-
 
