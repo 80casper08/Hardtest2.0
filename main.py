@@ -6,9 +6,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from flask import Flask
+from threading import Thread
 from dotenv import load_dotenv
-
-from hard_questions import hard_questions  # ⚠️ окремий файл із питаннями
+from hard_questions import hard_questions
 
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
@@ -16,110 +17,187 @@ TOKEN = os.getenv("TOKEN")
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
+ADMIN_ID = 710633503
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Bot is running!"
+
+def run():
+    app.run(host="0.0.0.0", port=8080)
+
+Thread(target=run).start()
+
 class QuizState(StatesGroup):
-    index = State()
-    selected = State()
-    results = State()
-    temp = State()
-    options_map = State()
+    question_index = State()
+    selected_options = State()
+    wrong_answers = State()
+    temp_selected = State()
     last_message_id = State()
+    current_options = State()
 
 @dp.message(F.text == "/start")
-async def start(message: types.Message, state: FSMContext):
+async def cmd_start(message: types.Message, state: FSMContext):
     await state.clear()
-    await state.set_state(QuizState.index)
+    await message.answer("Натисни кнопку, щоб почати 💪 Hard Test:", reply_markup=start_keyboard())
+
+def start_keyboard():
+    return types.ReplyKeyboardMarkup(
+        keyboard=[[types.KeyboardButton(text="💪 Hard Test")]],
+        resize_keyboard=True
+    )
+
+@dp.message(F.text == "💪 Hard Test")
+async def start_quiz(message: types.Message, state: FSMContext):
+    await state.set_state(QuizState.question_index)
     await state.update_data(
-        index=0,
-        selected=[],
-        results=[],
-        temp=set()
+        question_index=0,
+        selected_options=[],
+        wrong_answers=[],
+        temp_selected=set()
     )
     await send_question(message, state)
 
-async def send_question(msg_or_cb, state: FSMContext):
+async def send_question(message_or_callback, state: FSMContext):
     data = await state.get_data()
-    index = data["index"]
+    index = data["question_index"]
+
     if index >= len(hard_questions):
-        await show_result(msg_or_cb, state)
+        correct = 0
+        wrongs = []
+        for i, q in enumerate(hard_questions):
+            correct_answers = {j for j, (_, is_correct) in enumerate(q["options"]) if is_correct}
+            user_selected = set(data["selected_options"][i])
+            if correct_answers == user_selected:
+                correct += 1
+            else:
+                wrongs.append({
+                    "question": q["text"],
+                    "options": q["options"],
+                    "selected": list(user_selected),
+                    "correct": list(correct_answers)
+                })
+        await state.update_data(wrong_answers=wrongs)
+
+        percent = round(correct / len(hard_questions) * 100)
+        grade = "❌ Погано"
+        if percent >= 90: grade = "💯 Відмінно"
+        elif percent >= 70: grade = "👍 Добре"
+        elif percent >= 50: grade = "👌 Задовільно"
+
+        result = (
+            "📊 *Результат тесту:*
+\n\n"
+            f"✅ *Правильних відповідей:* {correct} з {len(hard_questions)}\n"
+            f"📈 *Успішність:* {percent}%\n"
+            f"🏆 *Оцінка:* {grade}"
+        )
+
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="🔁 Пройти ще раз", callback_data="restart")],
+            [InlineKeyboardButton(text="📋 Детальна інформація", callback_data="details")]
+        ])
+
+        if isinstance(message_or_callback, CallbackQuery):
+            await message_or_callback.message.answer(result, reply_markup=keyboard, parse_mode="Markdown")
+        else:
+            await message_or_callback.answer(result, reply_markup=keyboard, parse_mode="Markdown")
         return
 
-    q = hard_questions[index]
-    options = list(enumerate(q["options"]))
-    random.shuffle(options)
-    await state.update_data(options_map=options)
+    question = hard_questions[index]
+    text = question["text"]
+    original_options = list(enumerate(question["options"]))
+    random.shuffle(original_options)
 
+    selected = data.get("temp_selected", set())
     buttons = []
-    for i, (text, _) in options:
-        prefix = "✅ " if i in data.get("temp", set()) else "◻️ "
-        buttons.append([InlineKeyboardButton(text=prefix + text, callback_data=f"opt_{i}")])
-    buttons.append([InlineKeyboardButton(text="Підтвердити ✅", callback_data="confirm")])
-    markup = InlineKeyboardMarkup(inline_keyboard=buttons)
+    for i, (label, _) in original_options:
+        prefix = "✅ " if i in selected else "◻️ "
+        buttons.append([InlineKeyboardButton(text=prefix + label, callback_data=f"opt_{i}")])
+    buttons.append([InlineKeyboardButton(text="✅ Підтвердити", callback_data="confirm")])
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
     if data.get("last_message_id"):
         try:
-            await bot.delete_message(msg_or_cb.chat.id, data["last_message_id"])
+            await bot.delete_message(message_or_callback.chat.id, data["last_message_id"])
         except:
             pass
 
-    if q.get("image"):
-        photo = types.FSInputFile(q["image"])
-        sent = await bot.send_photo(msg_or_cb.chat.id, photo=photo, caption=q["text"], reply_markup=markup)
+    if question.get("image"):
+        sent = await bot.send_photo(
+            message_or_callback.chat.id,
+            photo=open(question["image"], "rb"),
+            caption=text,
+            reply_markup=keyboard
+        )
     else:
-        sent = await bot.send_message(msg_or_cb.chat.id, text=q["text"], reply_markup=markup)
+        sent = await bot.send_message(
+            message_or_callback.chat.id,
+            text,
+            reply_markup=keyboard
+        )
 
-    await state.update_data(last_message_id=sent.message_id)
+    await state.update_data(last_message_id=sent.message_id, current_options=original_options)
 
 @dp.callback_query(F.data.startswith("opt_"))
-async def toggle_opt(callback: CallbackQuery, state: FSMContext):
-    i = int(callback.data.split("_")[1])
+async def toggle_option(callback: CallbackQuery, state: FSMContext):
+    index = int(callback.data.split("_")[1])
     data = await state.get_data()
-    temp = data.get("temp", set())
-    temp ^= {i}
-    await state.update_data(temp=temp)
+    selected = data.get("temp_selected", set())
+    if index in selected:
+        selected.remove(index)
+    else:
+        selected.add(index)
+    await state.update_data(temp_selected=selected)
     await send_question(callback, state)
 
 @dp.callback_query(F.data == "confirm")
-async def confirm(callback: CallbackQuery, state: FSMContext):
+async def confirm_answer(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    temp = data.get("temp", set())
-    options_map = data["options_map"]
-    q = hard_questions[data["index"]]
+    selected = data.get("temp_selected", set())
+    selected_options = data.get("selected_options", [])
+    current_options = data.get("current_options")
+    original_question = hard_questions[data["question_index"]]
 
-    selected_texts = [options_map[i][0] for i in temp]
-    correct_indexes = [i for i, (t, ok) in enumerate(q["options"]) if ok]
-    correct_texts = [q["options"][i][0] for i in correct_indexes]
+    selected_texts = [current_options[i][0] for i in selected]
+    final_indices = [i for i, (text, _) in enumerate(original_question["options"]) if text in selected_texts]
+    selected_options.append(final_indices)
 
-    is_correct = set(selected_texts) == set(correct_texts)
-    data["results"].append((q["text"], selected_texts, correct_texts, is_correct))
     await state.update_data(
-        index=data["index"] + 1,
-        temp=set(),
-        results=data["results"]
+        selected_options=selected_options,
+        question_index=data["question_index"] + 1,
+        temp_selected=set()
     )
     await send_question(callback, state)
 
-async def show_result(source, state: FSMContext):
+@dp.callback_query(F.data == "details")
+async def show_details(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    results = data["results"]
-    correct = sum(1 for _, _, _, ok in results if ok)
-    percent = round(correct / len(results) * 100)
-    grade = "❌ Погано"
-    if percent >= 90: grade = "💯 Відмінно"
-    elif percent >= 70: grade = "👍 Добре"
-    elif percent >= 50: grade = "👌 Задовільно"
+    wrongs = data.get("wrong_answers", [])
+    if not wrongs:
+        await callback.message.answer("✅ Усі відповіді правильні!")
+        return
 
-    text = f"📊 *Результат:*\n\n✅ Правильних: {correct}/{len(results)}\n📈 Успішність: {percent}%\n🏆 Оцінка: {grade}"
-    await source.message.answer(text, parse_mode="Markdown")
+    for item in wrongs:
+        text = f"❌ *{item['question']}*\n"
+        for idx, (opt_text, _) in enumerate(item["options"]):
+            mark = "☑️" if idx in item["selected"] else "🔘"
+            text += f"{mark} {opt_text}\n"
+        selected_text = [item["options"][i][0] for i in item["selected"]] if item["selected"] else ["—"]
+        correct_text = [item["options"][i][0] for i in item["correct"]]
+        text += f"\n_Твоя відповідь:_ {', '.join(selected_text)}"
+        text += f"\n_Правильна відповідь:_ {', '.join(correct_text)}"
+        await callback.message.answer(text, parse_mode="Markdown")
 
-    for q_text, selected, correct, ok in results:
-        mark = "✅" if ok else "❌"
-        msg = f"{mark} *{q_text}*\n_Твоя відповідь:_ {', '.join(selected) if selected else '—'}\n_Правильна:_ {', '.join(correct)}"
-        await source.message.answer(msg, parse_mode="Markdown")
+@dp.callback_query(F.data == "restart")
+async def restart_quiz(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await callback.message.answer("Натисни кнопку, щоб почати 💪 Hard Test:", reply_markup=start_keyboard())
 
 async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
