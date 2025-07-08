@@ -9,13 +9,13 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
-from questions import hard_questions
 
 load_dotenv()
-TOKEN = os.getenv("TOKEN")
+TOKEN = os.getenv("Token")
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
+
 ADMIN_ID = 710633503
 
 app = Flask(__name__)
@@ -38,6 +38,20 @@ class QuizState(StatesGroup):
     last_message_id = State()
     current_options = State()
 
+# ✅ Вставлені питання
+hard_questions = [
+    {
+        "text": "Яких елементів не вистачає на платі KeyPad?",
+        "image": "https://raw.githubusercontent.com/80casper0/testimg/main/keypad.jpg",
+        "options": [
+            ("Холдер \"+\"", True),
+            ("Світлодіод", False),
+            ("Резистор", False),
+            ("Холдер \"-\"", True)
+        ]
+    }
+]
+
 def main_keyboard():
     return types.ReplyKeyboardMarkup(
         keyboard=[[types.KeyboardButton(text="💪 Hard Test")]],
@@ -51,7 +65,7 @@ async def start_quiz(message: types.Message, state: FSMContext):
         question_index=0,
         selected_options=[],
         wrong_answers=[],
-        temp_selected=set(),
+        temp_selected=set()
     )
 
     await send_question(message, state)
@@ -76,7 +90,6 @@ async def send_question(message_or_callback, state: FSMContext):
                     "correct": list(correct_answers)
                 })
 
-        await state.update_data(wrong_answers=wrongs)
         percent = round(correct / len(hard_questions) * 100)
         grade = "❌ Погано"
         if percent >= 90:
@@ -87,15 +100,14 @@ async def send_question(message_or_callback, state: FSMContext):
             grade = "👌 Задовільно"
 
         result = (
-            "📊 *Результат тесту:*\n\n"
+            f"📊 *Результат тесту:*\n\n"
             f"✅ *Правильних відповідей:* {correct} з {len(hard_questions)}\n"
             f"📈 *Успішність:* {percent}%\n"
             f"🏆 *Оцінка:* {grade}"
         )
 
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="🔁 Пройти ще раз", callback_data="restart")],
-            [InlineKeyboardButton(text="📋 Детальна інформація", callback_data="details")]
+            [InlineKeyboardButton(text="🔁 Пройти ще раз", callback_data="restart")]
         ])
 
         if isinstance(message_or_callback, CallbackQuery):
@@ -171,33 +183,14 @@ async def confirm_answer(callback: CallbackQuery, state: FSMContext):
     )
     await send_question(callback, state)
 
-@dp.callback_query(F.data == "details")
-async def show_details(callback: CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    wrongs = data.get("wrong_answers", [])
-    if not wrongs:
-        await callback.message.answer("✅ Усі відповіді правильні!")
-        return
-
-    for item in wrongs:
-        text = f"❌ *{item['question']}*\n"
-        for idx, (opt_text, _) in enumerate(item["options"]):
-            mark = "☑️" if idx in item["selected"] else "🔘"
-            text += f"{mark} {opt_text}\n"
-        selected_text = [item["options"][i][0] for i in item["selected"]] if item["selected"] else ["—"]
-        correct_text = [item["options"][i][0] for i in item["correct"]]
-        text += f"\n_Твоя відповідь:_ {', '.join(selected_text)}"
-        text += f"\n_Правильна відповідь:_ {', '.join(correct_text)}"
-        await callback.message.answer(text, parse_mode="Markdown")
-
 @dp.callback_query(F.data == "restart")
 async def restart_quiz(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    await callback.message.answer("Натисни ще раз '💪 Hard Test' для нового проходження.", reply_markup=main_keyboard())
+    await callback.message.answer("Вибери розділ:", reply_markup=main_keyboard())
 
 @dp.message(F.text == "/start")
 async def cmd_start(message: types.Message):
-    await message.answer("Натисни '💪 Hard Test' щоб почати:", reply_markup=main_keyboard())
+    await message.answer("Вибери розділ:", reply_markup=main_keyboard())
 
 async def main():
     await dp.start_polling(bot)
