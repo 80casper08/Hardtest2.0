@@ -43,9 +43,10 @@ class QuizState(StatesGroup):
     temp_selected = State()
     questions = State()
     last_message_id = State()
+    current_options = State()
 
 sections = {
-    "🪺 ОП": op_questions,
+    "🧺 ОП": op_questions,
     "📚 Загальні": general_questions,
     "⚙️ LEAN": lean_questions,
     "🎲QR🎲": qr_questions,
@@ -139,12 +140,12 @@ async def send_question(message_or_callback, state: FSMContext):
 
     question = questions[index]
     text = question["text"]
-    options = list(enumerate(question["options"]))
-    random.shuffle(options)
+    original_options = list(enumerate(question["options"]))
+    random.shuffle(original_options)
 
     selected = data.get("temp_selected", set())
     buttons = []
-    for i, (label, _) in options:
+    for i, (label, _) in original_options:
         prefix = "✅ " if i in selected else "◻️ "
         buttons.append([InlineKeyboardButton(text=prefix + label, callback_data=f"opt_{i}")])
     buttons.append([InlineKeyboardButton(text="✅ Підтвердити", callback_data="confirm")])
@@ -159,7 +160,7 @@ async def send_question(message_or_callback, state: FSMContext):
     if question.get("image"):
         sent = await bot.send_photo(
             message_or_callback.chat.id,
-            photo=question["image"],
+            photo=open(question["image"], "rb"),
             caption=text,
             reply_markup=keyboard
         )
@@ -170,7 +171,7 @@ async def send_question(message_or_callback, state: FSMContext):
             reply_markup=keyboard
         )
 
-    await state.update_data(last_message_id=sent.message_id)
+    await state.update_data(last_message_id=sent.message_id, current_options=original_options)
 
 @dp.callback_query(F.data.startswith("opt_"))
 async def toggle_option(callback: CallbackQuery, state: FSMContext):
@@ -189,7 +190,14 @@ async def confirm_answer(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     selected = data.get("temp_selected", set())
     selected_options = data.get("selected_options", [])
-    selected_options.append(list(selected))
+    current_options = data.get("current_options")
+    original_question = data["questions"][data["question_index"]]
+
+    selected_texts = [current_options[i][0] for i in selected]
+    final_indices = [i for i, (text, _) in enumerate(original_question["options"]) if text in selected_texts]
+
+    selected_options.append(final_indices)
+
     await state.update_data(
         selected_options=selected_options,
         question_index=data["question_index"] + 1,
@@ -202,7 +210,7 @@ async def show_details(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     wrongs = data.get("wrong_answers", [])
     if not wrongs:
-        await callback.message.answer("✅ Усі відповіді правильні!")
+        await callback.message.answer("✅ Усі відпові правильні!")
         return
 
     for item in wrongs:
@@ -264,4 +272,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
