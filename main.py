@@ -11,9 +11,9 @@ from dotenv import load_dotenv
 from hard_questions import hard_questions  # ⚠️ окремий файл із питаннями
 
 load_dotenv()
-TOKEN = os.getenv("TOKEN")
+TOKEN = os.getenv("Token")
 
-bot = Bot(token=Token)
+bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
 class QuizState(StatesGroup):
