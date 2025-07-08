@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from hard_questions import hard_questions  # ⚠️ окремий файл із питаннями
 
 load_dotenv()
-TOKEN = os.getenv("Token")
+TOKEN = os.getenv("TOKEN")
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
