@@ -63,7 +63,7 @@ def main_keyboard():
 @dp.message(F.text.in_(sections.keys()))
 async def start_quiz(message: types.Message, state: FSMContext):
     category = message.text
-    questions = sections[category][:20]
+    questions = sections[category]
 
     await state.set_state(QuizState.category)
     await state.update_data(
