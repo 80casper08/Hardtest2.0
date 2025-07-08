@@ -60,7 +60,9 @@ async def send_question(message_or_callback, state: FSMContext):
     index = data["question_index"]
 
     if index >= len(questions):
-        await message_or_callback.answer("✅ Тест завершено!")
+        await (message_or_callback.message.answer("✅ Тест завершено!") 
+               if isinstance(message_or_callback, CallbackQuery) 
+               else message_or_callback.answer("✅ Тест завершено!"))
         return
 
     question = questions[index]
@@ -77,22 +79,28 @@ async def send_question(message_or_callback, state: FSMContext):
     buttons.append([InlineKeyboardButton(text="✅ Підтвердити", callback_data="confirm")])
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
+    chat_id = (
+        message_or_callback.message.chat.id
+        if isinstance(message_or_callback, CallbackQuery)
+        else message_or_callback.chat.id
+    )
+
     if data.get("last_message_id"):
         try:
-            await bot.delete_message(message_or_callback.chat.id, data["last_message_id"])
+            await bot.delete_message(chat_id, data["last_message_id"])
         except:
             pass
 
     if question.get("image"):
         sent = await bot.send_photo(
-            message_or_callback.chat.id,
+            chat_id,
             photo=question["image"],
             caption=text,
             reply_markup=keyboard
         )
     else:
         sent = await bot.send_message(
-            message_or_callback.chat.id,
+            chat_id,
             text,
             reply_markup=keyboard
         )
@@ -158,4 +166,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
