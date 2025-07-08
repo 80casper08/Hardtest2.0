@@ -9,7 +9,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
-from hard_questions import hard_questions
+from hard_questions import hard_questions  # файл має бути в корені
 
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
@@ -17,18 +17,16 @@ TOKEN = os.getenv("TOKEN")
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
-ADMIN_ID = 710633503
-
 app = Flask(__name__)
+Thread(target=lambda: app.run(host="0.0.0.0", port=8080)).start()
 
 @app.route("/")
 def home():
     return "Bot is running!"
 
-def run():
-    app.run(host="0.0.0.0", port=8080)
-
-Thread(target=run).start()
+@app.route("/ping")
+def ping():
+    return "OK", 200
 
 class QuizState(StatesGroup):
     question_index = State()
@@ -38,16 +36,12 @@ class QuizState(StatesGroup):
     last_message_id = State()
     current_options = State()
 
-@dp.message(F.text == "/start")
-async def cmd_start(message: types.Message, state: FSMContext):
-    await state.clear()
-    await message.answer("Натисни кнопку, щоб почати 💪 Hard Test:", reply_markup=start_keyboard())
-
-def start_keyboard():
-    return types.ReplyKeyboardMarkup(
+def main_keyboard():
+    keyboard = types.ReplyKeyboardMarkup(
         keyboard=[[types.KeyboardButton(text="💪 Hard Test")]],
         resize_keyboard=True
     )
+    return keyboard
 
 @dp.message(F.text == "💪 Hard Test")
 async def start_quiz(message: types.Message, state: FSMContext):
@@ -62,12 +56,13 @@ async def start_quiz(message: types.Message, state: FSMContext):
 
 async def send_question(message_or_callback, state: FSMContext):
     data = await state.get_data()
+    questions = hard_questions
     index = data["question_index"]
 
-    if index >= len(hard_questions):
+    if index >= len(questions):
         correct = 0
         wrongs = []
-        for i, q in enumerate(hard_questions):
+        for i, q in enumerate(questions):
             correct_answers = {j for j, (_, is_correct) in enumerate(q["options"]) if is_correct}
             user_selected = set(data["selected_options"][i])
             if correct_answers == user_selected:
@@ -80,17 +75,18 @@ async def send_question(message_or_callback, state: FSMContext):
                     "correct": list(correct_answers)
                 })
         await state.update_data(wrong_answers=wrongs)
-
-        percent = round(correct / len(hard_questions) * 100)
+        percent = round(correct / len(questions) * 100)
         grade = "❌ Погано"
-        if percent >= 90: grade = "💯 Відмінно"
-        elif percent >= 70: grade = "👍 Добре"
-        elif percent >= 50: grade = "👌 Задовільно"
+        if percent >= 90:
+            grade = "💯 Відмінно"
+        elif percent >= 70:
+            grade = "👍 Добре"
+        elif percent >= 50:
+            grade = "👌 Задовільно"
 
         result = (
-            "📊 *Результат тесту:*
-\n\n"
-            f"✅ *Правильних відповідей:* {correct} з {len(hard_questions)}\n"
+            "📊 *Результат тесту:*\n\n"
+            f"✅ *Правильних відповідей:* {correct} з {len(questions)}\n"
             f"📈 *Успішність:* {percent}%\n"
             f"🏆 *Оцінка:* {grade}"
         )
@@ -106,7 +102,7 @@ async def send_question(message_or_callback, state: FSMContext):
             await message_or_callback.answer(result, reply_markup=keyboard, parse_mode="Markdown")
         return
 
-    question = hard_questions[index]
+    question = questions[index]
     text = question["text"]
     original_options = list(enumerate(question["options"]))
     random.shuffle(original_options)
@@ -163,8 +159,8 @@ async def confirm_answer(callback: CallbackQuery, state: FSMContext):
 
     selected_texts = [current_options[i][0] for i in selected]
     final_indices = [i for i, (text, _) in enumerate(original_question["options"]) if text in selected_texts]
-    selected_options.append(final_indices)
 
+    selected_options.append(final_indices)
     await state.update_data(
         selected_options=selected_options,
         question_index=data["question_index"] + 1,
@@ -194,10 +190,16 @@ async def show_details(callback: CallbackQuery, state: FSMContext):
 @dp.callback_query(F.data == "restart")
 async def restart_quiz(callback: CallbackQuery, state: FSMContext):
     await state.clear()
-    await callback.message.answer("Натисни кнопку, щоб почати 💪 Hard Test:", reply_markup=start_keyboard())
+    await callback.message.answer("Натисни 💪 Hard Test щоб розпочати заново", reply_markup=main_keyboard())
+
+@dp.message(F.text == "/start")
+async def cmd_start(message: types.Message):
+    await message.answer("Натисни 💪 Hard Test щоб розпочати тест:", reply_markup=main_keyboard())
 
 async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
