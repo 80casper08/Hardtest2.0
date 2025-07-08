@@ -10,12 +10,14 @@ from dotenv import load_dotenv
 from flask import Flask
 from threading import Thread
 
+# Завантаження токена з .env
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
+# Стани FSM
 class QuizState(StatesGroup):
     question_index = State()
     selected_options = State()
@@ -24,6 +26,7 @@ class QuizState(StatesGroup):
     last_message_id = State()
     current_options = State()
 
+# Питання
 questions = [
     {
         "text": "Яких елементів не вистачає на платі KeyPad?",
@@ -37,6 +40,7 @@ questions = [
     }
 ]
 
+# Обробка /start
 @dp.message(F.text == "/start")
 async def start(message: types.Message, state: FSMContext):
     await state.clear()
@@ -49,6 +53,7 @@ async def start(message: types.Message, state: FSMContext):
     )
     await send_question(message, state)
 
+# Відправка питання
 async def send_question(message_or_callback, state: FSMContext):
     data = await state.get_data()
     questions = data["questions"]
@@ -94,12 +99,14 @@ async def send_question(message_or_callback, state: FSMContext):
 
     await state.update_data(last_message_id=sent.message_id)
 
+# Обробка вибору варіанту
 @dp.callback_query(F.data.startswith("opt_"))
 async def toggle_option(callback: CallbackQuery, state: FSMContext):
     index = int(callback.data.split("_")[1])
     data = await state.get_data()
-    current_options = dict(data.get("current_options", []))
-    if index not in current_options:
+    current_options = data.get("current_options", [])
+    option_indices = [i for i, _ in current_options]
+    if index not in option_indices:
         return await callback.answer("⚠️ Відповідь недійсна або застаріла.")
 
     selected = data.get("temp_selected", set())
@@ -110,14 +117,15 @@ async def toggle_option(callback: CallbackQuery, state: FSMContext):
     await state.update_data(temp_selected=selected)
     await send_question(callback, state)
 
+# Обробка підтвердження
 @dp.callback_query(F.data == "confirm")
 async def confirm_answer(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     selected = data.get("temp_selected", set())
     selected_options = data.get("selected_options", [])
-    current_options = dict(data.get("current_options", []))
+    current_options = data.get("current_options", [])
+    selected_texts = [label for i, (label, _) in current_options if i in selected]
 
-    selected_texts = [current_options[i][0] for i in selected]
     original_question = data["questions"][data["question_index"]]
     final_indices = [i for i, (text, _) in enumerate(original_question["options"]) if text in selected_texts]
     selected_options.append(final_indices)
@@ -129,8 +137,25 @@ async def confirm_answer(callback: CallbackQuery, state: FSMContext):
     )
     await send_question(callback, state)
 
+# Flask для Render
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Bot is running!"
+
+@app.route("/ping")
+def ping():
+    return "OK", 200
+
+def run_flask():
+    app.run(host="0.0.0.0", port=8080)
+
+# Старт бота
 async def main():
+    Thread(target=run_flask).start()
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
+
