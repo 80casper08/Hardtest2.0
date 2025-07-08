@@ -11,7 +11,7 @@ from threading import Thread
 from dotenv import load_dotenv
 
 load_dotenv()
-TOKEN = os.getenv("Token")
+TOKEN = os.getenv("TOKEN")
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
