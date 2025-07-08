@@ -13,7 +13,7 @@ from hard_questions import hard_questions  # ⚠️ окремий файл із
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
 
-bot = Bot(token=TOKEN)
+bot = Bot(token=Token)
 dp = Dispatcher(storage=MemoryStorage())
 
 class QuizState(StatesGroup):
