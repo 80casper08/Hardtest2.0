@@ -46,7 +46,7 @@ class QuizState(StatesGroup):
     current_options = State()
 
 sections = {
-    "🧺 ОП": op_questions,
+    "🮺 ОП": op_questions,
     "📚 Загальні": general_questions,
     "⚙️ LEAN": lean_questions,
     "🎲QR🎲": qr_questions,
@@ -160,7 +160,7 @@ async def send_question(message_or_callback, state: FSMContext):
     if question.get("image"):
         sent = await bot.send_photo(
             message_or_callback.chat.id,
-            photo=open(question["image"], "rb"),
+            photo=question["image"],
             caption=text,
             reply_markup=keyboard
         )
@@ -272,5 +272,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 
