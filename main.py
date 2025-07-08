@@ -150,7 +150,6 @@ async def send_question(message_or_callback, state: FSMContext):
     buttons.append([InlineKeyboardButton(text="✅ Підтвердити", callback_data="confirm")])
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
-    # Видалення попереднього повідомлення (фото + текст)
     if data.get("last_message_id"):
         try:
             await bot.delete_message(message_or_callback.chat.id, data["last_message_id"])
@@ -160,7 +159,7 @@ async def send_question(message_or_callback, state: FSMContext):
     if question.get("image"):
         sent = await bot.send_photo(
             message_or_callback.chat.id,
-            photo=open(question["image"], "rb"),
+            photo=question["image"],
             caption=text,
             reply_markup=keyboard
         )
@@ -265,3 +264,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
