@@ -16,7 +16,6 @@ TOKEN = os.getenv("Token")
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
-
 ADMIN_ID = 710633503
 
 if not os.path.exists("logs.txt"):
@@ -24,15 +23,8 @@ if not os.path.exists("logs.txt"):
         f.write("FullName | Username | Дія\n")
 
 app = Flask(__name__)
-
-@app.route("/")
-def home():
-    return "Bot is running!"
-
-@app.route("/ping")
-def ping():
-    return "OK", 200
-
+@app.route("/") def home(): return "Bot is running!"
+@app.route("/ping") def ping(): return "OK", 200
 Thread(target=lambda: app.run(host="0.0.0.0", port=8080)).start()
 
 class QuizState(StatesGroup):
@@ -46,7 +38,7 @@ class QuizState(StatesGroup):
     current_options = State()
 
 sections = {
-    "🮺 ОП": op_questions,
+    "🧺 ОП": op_questions,
     "📚 Загальні": general_questions,
     "⚙️ LEAN": lean_questions,
     "🎲QR🎲": qr_questions,
@@ -55,11 +47,7 @@ sections = {
 
 def main_keyboard():
     buttons = [types.KeyboardButton(text=section) for section in sections]
-    keyboard = types.ReplyKeyboardMarkup(
-        keyboard=[[button] for button in buttons],
-        resize_keyboard=True
-    )
-    return keyboard
+    return types.ReplyKeyboardMarkup(keyboard=[[btn] for btn in buttons], resize_keyboard=True)
 
 @dp.message(F.text.in_(sections.keys()))
 async def start_quiz(message: types.Message, state: FSMContext):
@@ -151,25 +139,22 @@ async def send_question(message_or_callback, state: FSMContext):
     buttons.append([InlineKeyboardButton(text="✅ Підтвердити", callback_data="confirm")])
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
+    chat_id = message_or_callback.message.chat.id if isinstance(message_or_callback, CallbackQuery) else message_or_callback.chat.id
     if data.get("last_message_id"):
         try:
-            await bot.delete_message(message_or_callback.chat.id, data["last_message_id"])
+            await bot.delete_message(chat_id, data["last_message_id"])
         except:
             pass
 
     if question.get("image"):
         sent = await bot.send_photo(
-            message_or_callback.chat.id,
-            photo=question["image"],
+            chat_id,
+            photo=open(question["image"], "rb"),
             caption=text,
             reply_markup=keyboard
         )
     else:
-        sent = await bot.send_message(
-            message_or_callback.chat.id,
-            text,
-            reply_markup=keyboard
-        )
+        sent = await bot.send_message(chat_id, text, reply_markup=keyboard)
 
     await state.update_data(last_message_id=sent.message_id, current_options=original_options)
 
@@ -178,10 +163,7 @@ async def toggle_option(callback: CallbackQuery, state: FSMContext):
     index = int(callback.data.split("_")[1])
     data = await state.get_data()
     selected = data.get("temp_selected", set())
-    if index in selected:
-        selected.remove(index)
-    else:
-        selected.add(index)
+    selected.symmetric_difference_update({index})
     await state.update_data(temp_selected=selected)
     await send_question(callback, state)
 
@@ -192,12 +174,9 @@ async def confirm_answer(callback: CallbackQuery, state: FSMContext):
     selected_options = data.get("selected_options", [])
     current_options = data.get("current_options")
     original_question = data["questions"][data["question_index"]]
-
     selected_texts = [current_options[i][0] for i in selected]
     final_indices = [i for i, (text, _) in enumerate(original_question["options"]) if text in selected_texts]
-
     selected_options.append(final_indices)
-
     await state.update_data(
         selected_options=selected_options,
         question_index=data["question_index"] + 1,
@@ -210,7 +189,7 @@ async def show_details(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     wrongs = data.get("wrong_answers", [])
     if not wrongs:
-        await callback.message.answer("✅ Усі відпові правильні!")
+        await callback.message.answer("✅ Усі відповіді правильні!")
         return
 
     for item in wrongs:
@@ -242,30 +221,16 @@ async def list_users(message: types.Message):
     if message.from_user.id != ADMIN_ID:
         await message.answer("⛔️ Недостатньо прав.")
         return
-
     if not os.path.exists("logs.txt"):
         await message.answer("📄 Логів ще немає.")
         return
-
     with open("logs.txt", "r", encoding="utf-8") as f:
         lines = f.readlines()[1:]
-
-    users = set()
-    for line in lines:
-        parts = line.strip().split(" | ")
-        if len(parts) >= 2:
-            name = parts[0]
-            username = parts[1]
-            users.add(f"{name} {username}")
-
+    users = {f"{l.split(' | ')[0]} {l.split(' | ')[1]}" for l in lines if " | " in l}
     if not users:
         await message.answer("🙃 Користувачів ще немає.")
         return
-
-    sorted_users = sorted(users)
-    text = "👥 *Користувачі, які проходили тести:*\n"
-    text += "\n".join(f"\u2022 {user}" for user in sorted_users)
-    await message.answer(text, parse_mode="Markdown")
+    await message.answer("👥 *Користувачі, які проходили тести:*\n" + "\n".join(f"• {u}" for u in sorted(users)), parse_mode="Markdown")
 
 async def main():
     await dp.start_polling(bot)
