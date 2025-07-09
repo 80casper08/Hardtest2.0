@@ -65,8 +65,8 @@ questions = [
     "text": "3) Яке правильне положення QR-коду на платі перед тестом DoorProtect?",
     "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/3.jpg",
     "options": [
-        ("1", True),
-        ("2", False),
+        ("2", True),
+        ("1", False),
         ("Будь-яке", False),
         ("QR не потрібен", False)
     ]
