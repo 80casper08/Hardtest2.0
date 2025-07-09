@@ -323,7 +323,7 @@ questions += [
 ]
 questions += [
     {
-        "text": "28) В якому випадку правильно поклеєний QR-код на плату MotionProtect?",
+        "text": "28) Яку плату можна зашити як MotionProtect?",
         "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/28.jpg",
         "options": [
             ("1", False),
@@ -363,7 +363,7 @@ questions += [
         ]
     },
     {
-        "text": "32) В якому випадку правильно поклеєний QR-код на плату LightSwitch MBR?",
+        "text": "32) Яких елементів не вистачає LightSwitch MBR?",
         "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/32.jpg",
         "options": [
             ("1", True),
