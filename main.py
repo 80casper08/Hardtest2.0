@@ -69,9 +69,19 @@ questions = [
         ("1", False),
         ("Будь-яке", False),
         ("QR не потрібен", False)
-    ]
-}
-]
+        ]
+    },
+    {
+    "text": "4) В якому випадку правильно поклеєний QR-код на плату WaterStop MBR?",
+    "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/4.jpg",
+    "options": [
+        ("1", False),
+        ("2", True),
+        ("QR не клеїться", False),
+        ("Можна обидва варіанти", False)
+        ]
+     }
+  ]
 
 @dp.message(F.text.startswith("/start"))
 async def start_quiz(message: types.Message, state: FSMContext):
