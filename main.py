@@ -152,3 +152,12 @@ async def confirm_answer(callback: CallbackQuery, state: FSMContext):
         temp_selected=set()
     )
     await send_question(callback.message.chat.id, data["question_index"] + 1, state)
+async def main():
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.create_task(main())
+    run_flask()
+
+
