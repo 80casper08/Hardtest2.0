@@ -39,7 +39,7 @@ class QuizState(StatesGroup):
     temp_selected = State()
     current_message_id = State()
 
-# ❓ Питання
+#
 questions = [
     {
         "text": "1) Яких елементів не вистачає на платі KeyPad?",
@@ -62,40 +62,38 @@ questions = [
         ]
     },
     {
-    "text": "3) Яке правильне положення QR-коду на платі перед тестом DoorProtect?",
-    "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/3.jpg",
-    "options": [
-        ("2", True),
-        ("1", False),
-        ("Будь-яке", False),
-        ("QR не потрібен", False)
+        "text": "3) Яке правильне положення QR-коду на платі перед тестом DoorProtect?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/3.jpg",
+        "options": [
+            ("2", True),
+            ("1", False),
+            ("Будь-яке", False),
+            ("QR не потрібен", False)
         ]
     },
     {
-    "text": "4) В якому випадку правильно поклеєний QR-код на плату WaterStop MBR?",
-    "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/4.jpg",
-    "options": [
-        ("1", False),
-        ("2", True),
-        ("QR не клеїться", False),
-        ("Можна обидва варіанти", False)
+        "text": "4) В якому випадку правильно поклеєний QR-код на плату WaterStop MBR?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/4.jpg",
+        "options": [
+            ("1", False),
+            ("2", True),
+            ("QR не клеїться", False),
+            ("Можна обидва варіанти", False)
         ]
-     }
-  ]
-questions += [
+    },
     {
         "text": "5) В якому випадку правильно поклеєний QR-код на плату Hub Hybrid?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/hybrid.jpg",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/5.jpg",
         "options": [
             ("1", True),
             ("2", False),
-            ("Обидва варіанти", False),
-            ("QR не клеїться", False)
+            ("QR не клеїться", False),
+            ("Будь-який варіант", False)
         ]
     },
     {
         "text": "6) В якому випадку правильно поклеєний QR-код на плату LifeQuality?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/lifequality.jpg",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/6.jpg",
         "options": [
             ("1", True),
             ("2", False),
@@ -105,125 +103,140 @@ questions += [
     },
     {
         "text": "7) В якому випадку правильно поклеєний QR-код на плату Hub?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/hub.jpg",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/7.jpg",
         "options": [
             ("1", True),
             ("2", True),
-            ("Жоден", False),
-            ("Будь-який", False)
+            ("QR не клеїться", False),
+            ("Жоден", False)
         ]
     },
     {
-        "text": "8) В якому випадку правильно поклеєний QR-код на плату LightSwitch PWR?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/lightswitch.jpg",
+        "text": "8) Чи дозволяється такий варіант накриття захисного ковпачка на платі Multitransmitter?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/8.jpg",
+        "options": [
+            ("Так", True),
+            ("Ні", False),
+            ("Можливо", False),
+            ("Тільки за інструкцією", False)
+        ]
+    },
+    {
+        "text": "9) В якому випадку правильно поклеєний QR-код на плату LightSwitch PWR?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/9.jpg",
         "options": [
             ("1", False),
             ("2", True),
-            ("Будь-який", False),
-            ("QR не клеїться", False)
+            ("QR не клеїться", False),
+            ("Жоден", False)
         ]
     },
     {
-        "text": "9) В якому випадку правильно поклеєний QR-код на плату KPC.BOT?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/kpc.jpg",
+        "text": "10) В якому випадку правильно поклеєний QR-код на плату KPC.BOT?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/10.jpg",
         "options": [
             ("1", False),
             ("2", True),
             ("3", False),
-            ("Всі підходять", False)
-        ]
-    },
-    {
-        "text": "10) В якому випадку правильно поклеєний QR-код на плату uartBridge?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/uart.jpg",
-        "options": [
-            ("1", False),
-            ("2", True),
-            ("QR відсутній", False),
-            ("QR вшитий у плату", False)
-        ]
-    },
-    {
-        "text": "11) В якому випадку правильно поклеєний QR-код на плату MotionProtect Outdoor?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/mpo.jpg",
-        "options": [
-            ("1", True),
-            ("2", False),
-            ("3", False),
             ("QR не клеїться", False)
-        ]
-    },
-    {
-        "text": "12) В якому випадку правильно поклеєний QR-код на плату ReX?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/rex.jpg",
-        "options": [
-            ("1", True),
-            ("2", False),
-            ("Будь-який", False),
-            ("Жоден", False)
-        ]
-    },
-    {
-        "text": "13) В якому випадку неправильно поклеєний QR-код на плату Relay?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/relay.jpg",
-        "options": [
-            ("1", False),
-            ("2", True),
-            ("Обидва варіанти вірні", False),
-            ("Жоден", False)
-        ]
-    },
-    {
-        "text": "14) В якому випадку правильно поклеєний QR-код на плату StreetSiren?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/streetsiren.jpg",
-        "options": [
-            ("1", True),
-            ("2", False),
-            ("QR не клеїться", False),
-            ("Обидва варіанти", False)
-        ]
-    },
-    {
-        "text": "15) В якому випадку правильно поклеєний QR-код на плату MotionCam?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/motioncam.jpg",
-        "options": [
-            ("1", True),
-            ("2", False),
-            ("Жоден", False),
-            ("Будь-який", False)
-        ]
-    },
-    {
-        "text": "16) В якому випадку правильно поклеєний QR-код на плату GPv10?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/gpv10.jpg",
-        "options": [
-            ("1", True),
-            ("2", False),
-            ("QR не клеїться", False),
-            ("Обидва підходять", False)
-        ]
-    },
-    {
-        "text": "17) В якому випадку правильно поклеєний QR-код на плату HomeSiren?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/homesiren.jpg",
-        "options": [
-            ("1", True),
-            ("2", False),
-            ("QR не клеїться", False),
-            ("Жоден", False)
-        ]
-    },
-    {
-        "text": "18) В якому випадку правильно поклеєний QR-код на плату NVR?",
-        "image": "https://raw.githubusercontent.com/pavlo-frygan/qr-test/main/nvr.jpg",
-        "options": [
-            ("1", True),
-            ("QR не потрібно клеїти", False),
-            ("QR тільки всередині корпусу", False),
-            ("2", False)
         ]
     }
 ]
+
+questions += [
+    {
+        "text": "11) В якому випадку правильно поклеєний QR-код на плату uartBridge?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/11.jpg",
+        "options": [
+            ("1", False),
+            ("2", True),
+            ("QR не клеїться", False),
+            ("Жоден", False)
+        ]
+    },
+    {
+        "text": "12) В якому випадку правильно поклеєний QR-код на плату MotionProtect Outdoor?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/12.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("3", False),
+            ("QR не клеїться", False)
+        ]
+    },
+    {
+        "text": "13) Яких елементів не вистачає на платі MotionCam?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/13.jpg",
+        "options": [
+            ("Електролітичні конденсатори", True),
+            ("Фототранзистор", True),
+            ("Антена", False),
+            ("Світлодіод", False)
+        ]
+    },
+    {
+        "text": "14) В якому випадку правильно поклеєний QR-код на плату ReX?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/14.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("3", False),
+            ("4", False)
+        ]
+    },
+    {
+        "text": "15) Яких елементів не вистачає на платі Hub Hybrid 4G?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/15.jpg",
+        "options": [
+            ("Розʼєм SIM холдера", True),
+            ("Клема акумуляторної батареї", True),
+            ("Тампер", False),
+            ("Кварцовий резонатор", False)
+        ]
+    },
+    {
+        "text": "16) В якому випадку неправильно поклеєний QR-код на плату Relay?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/16.jpg",
+        "options": [
+            ("1", False),
+            ("2", True),
+            ("3", False),
+            ("4", False)
+        ]
+    },
+    {
+        "text": "17) В якому випадку правильно поклеєний QR-код на плату StreetSiren?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/17.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("3", False),
+            ("4", False)
+        ]
+    },
+    {
+        "text": "18) Яких елементів не вистачає на платі NVR?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/18.jpg",
+        "options": [
+            ("Резистори", False),
+            ("Світлодіоди", False),
+            ("ЕК (дроселі із крихким керамічним корпусом)", True),
+            ("Реле", False)
+        ]
+    },
+    {
+        "text": "19) В якому випадку правильно поклеєний QR-код на плату HomeSiren?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/19.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("QR не клеїться", False),
+            ("Будь-який варіант", False)
+        ]
+    }
+]
+
+
 @dp.message(F.text.startswith("/start"))
 async def start_quiz(message: types.Message, state: FSMContext):
     await state.clear()
