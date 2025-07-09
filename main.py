@@ -383,6 +383,110 @@ questions += [
         ]
     }
 ]
+questions += [
+    {
+        "text": "34) В якому випадку правильно поклеєний відповідний QR-код на плату PWB?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/34.jpg",
+        "options": [
+            ("1 (Success)", False),
+            ("2 (QR)", False),
+            ("3 (PWB+QR)", True),
+            ("Усі варіанти правильні", False)
+        ]
+    },
+    {
+        "text": "35) В якому випадку правильно поклеєний QR-код на плату NVR?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/35.jpg",
+        "options": [
+            ("1", False),
+            ("2", True),
+            ("3", False),
+            ("4", False)
+        ]
+    },
+    {
+        "text": "36) В якому випадку правильно поклеєний QR-код на плату MultiTransmitter?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/36.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("QR не клеїться", False),
+            ("Будь-який варіант", False)
+        ]
+    },
+    {
+        "text": "37) В якому випадку правильно поклеєний QR-код на плату KeypadCombi?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/37.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("3", False),
+            ("4", False)
+        ]
+    },
+    {
+        "text": "38) В якому випадку правильно поклеєний QR-код на плату?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/38.jpg",
+        "options": [
+            ("1", False),
+            ("2", True),
+            ("QR не клеїться", False),
+            ("Будь-який варіант", False)
+        ]
+    }
+]
+questions += [
+    {
+        "text": "39) Для чого потрібні ці комплектуючі для Hub Hybrid?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/39.jpg",
+        "options": [
+            ("Для захисту вивідних контактів роз'єму 220V", True),
+            ("Для підключення кабелів живлення", False),
+            ("Для кріплення кришки корпусу", False),
+            ("Для тестування плати на стенді", False)
+        ]
+    },
+    {
+        "text": "40) В якому випадку неправильно поклеєний QR-код на плату KeypadPlus?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/40.jpg",
+        "options": [
+            ("1", False),
+            ("2", True),
+            ("QR не клеїться", False),
+            ("Обидва варіанти правильні", False)
+        ]
+    },
+    {
+        "text": "41) Яких елементів не вистачає на платі CombiProtect?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/41.jpg",
+        "options": [
+            ("Світлодіод", True),
+            ("Клема", True),
+            ("Тампер", True),
+            ("PIR-сенсор", True)
+        ]
+    },
+    {
+        "text": "42) Яких елементів не вистачає на платі Hub Plus?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/42.jpg",
+        "options": [
+            ("Роз'єм SIM-holder", True),
+            ("Світлодіод", True),
+            ("Антена", False),
+            ("Тампер", False)
+        ]
+    },
+    {
+        "text": "43) В якому випадку правильно поклеєний QR-код на плату PWBv4?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/43.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("Обидва варіанти правильні", False),
+            ("QR не клеїться", False)
+        ]
+    }
+]
 
 @dp.message(F.text.startswith("/start"))
 async def start_quiz(message: types.Message, state: FSMContext):
