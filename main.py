@@ -108,6 +108,14 @@ async def send_question(chat_id, state: FSMContext):
     buttons.append([InlineKeyboardButton(text="Підтвердити", callback_data="confirm")])
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
+    # 🧹 Видаляємо попереднє повідомлення
+    previous_id = data.get("current_message_id")
+    if previous_id:
+        try:
+            await bot.delete_message(chat_id, previous_id)
+        except:
+            pass
+
     msg = await bot.send_photo(chat_id, photo=question["image"], caption=question["text"], reply_markup=keyboard)
     await state.update_data(current_message_id=msg.message_id)
 
@@ -144,7 +152,7 @@ async def confirm_answer(callback: CallbackQuery, state: FSMContext):
     selected = data.get("temp_selected", set())
     selected_options = data.get("selected_options", [])
 
-    final_indices = list(selected)  # ✅ Тепер вибір точно зберігається
+    final_indices = list(selected)
 
     selected_options.append(final_indices)
     new_index = data["question_index"] + 1
@@ -195,4 +203,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
