@@ -1,3 +1,5 @@
+
+
 import asyncio
 import os
 from aiogram import Bot, Dispatcher, types, F
@@ -88,7 +90,8 @@ async def send_question(chat_id, state: FSMContext):
             f"📊 Результат тесту: {correct} з {len(questions)}",
             reply_markup=InlineKeyboardMarkup(
                 inline_keyboard=[
-                    [InlineKeyboardButton(text="📋 Детальна інформація", callback_data="details")]
+                    [InlineKeyboardButton(text="📋 Детальна інформація", callback_data="details")],
+                    [InlineKeyboardButton(text="🔄 Пройти ще раз", callback_data="retry")]
                 ]
             )
         )
@@ -146,9 +149,10 @@ async def confirm_answer(callback: CallbackQuery, state: FSMContext):
     final_indices = [i for i, (text, _) in enumerate(original_question["options"]) if text in selected_texts]
 
     selected_options.append(final_indices)
+    new_index = data["question_index"] + 1
     await state.update_data(
         selected_options=selected_options,
-        question_index=data["question_index"] + 1,
+        question_index=new_index,
         temp_selected=set()
     )
     await send_question(callback.message.chat.id, state)
@@ -175,6 +179,17 @@ async def show_details(callback: CallbackQuery, state: FSMContext):
     else:
         for block in text_blocks:
             await bot.send_message(callback.message.chat.id, block, parse_mode="Markdown")
+
+@dp.callback_query(F.data == "retry")
+async def restart_quiz(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await state.set_state(QuizState.question_index)
+    await state.update_data(
+        question_index=0,
+        selected_options=[],
+        temp_selected=set()
+    )
+    await send_question(callback.message.chat.id, state)
 
 # 🚀 Запуск
 async def main():
