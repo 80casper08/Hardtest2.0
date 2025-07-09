@@ -143,10 +143,8 @@ async def confirm_answer(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     selected = data.get("temp_selected", set())
     selected_options = data.get("selected_options", [])
-    current_options = data.get("current_options", [])
-    selected_texts = [current_options[i][0] for i in selected]
-    original_question = questions[data["question_index"]]
-    final_indices = [i for i, (text, _) in enumerate(original_question["options"]) if text in selected_texts]
+
+    final_indices = list(selected)  # ✅ Тепер вибір точно зберігається
 
     selected_options.append(final_indices)
     new_index = data["question_index"] + 1
@@ -197,5 +195,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 
