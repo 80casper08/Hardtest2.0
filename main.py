@@ -193,49 +193,50 @@ questions += [
             ("Тампер", False),
             ("Кварцовий резонатор", False)
         ]
-    },
+    }
+  ]
+questions += [
     {
-        "text": "16) В якому випадку неправильно поклеєний QR-код на плату Relay?",
+        "text": "16) Яких елементів не вистачає на платі GPv10?",
         "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/16.jpg",
         "options": [
-            ("1", False),
-            ("2", True),
-            ("3", False),
-            ("4", False)
+            ("Вмикач", True),
+            ("Клема", True),
+            ("Світлодіод", False),
+            ("Антена", False)
         ]
     },
     {
-        "text": "17) В якому випадку правильно поклеєний QR-код на плату StreetSiren?",
+        "text": "17) В якому випадку неправильно поклеєний QR-код на плату Relay?",
         "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/17.jpg",
         "options": [
-            ("1", True),
-            ("2", False),
-            ("3", False),
-            ("4", False)
+            ("2", True),
+            ("1", False),
+            ("Обидва правильні", False),
+            ("QR не клеїться", False)
         ]
     },
     {
-        "text": "18) Яких елементів не вистачає на платі NVR?",
+        "text": "18) В якому випадку правильно поклеєний QR-код на плату StreetSiren?",
         "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/18.jpg",
         "options": [
-            ("Резистори", False),
-            ("Світлодіоди", False),
-            ("ЕК (дроселі із крихким керамічним корпусом)", True),
-            ("Реле", False)
+            ("1", True),
+            ("2", False),
+            ("Будь-який варіант", False),
+            ("QR не клеїться", False)
         ]
     },
     {
-        "text": "19) В якому випадку правильно поклеєний QR-код на плату HomeSiren?",
+        "text": "19) Яких елементів не вистачає на платі NVR?",
         "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/19.jpg",
         "options": [
-            ("1", True),
-            ("2", False),
-            ("QR не клеїться", False),
-            ("Будь-який варіант", False)
+            ("ЕК (дроселі із крихким керамічним корпусом)", True),
+            ("SIM холдер", False),
+            ("Клема живлення", False),
+            ("Антена", False)
         ]
     }
 ]
-
 
 @dp.message(F.text.startswith("/start"))
 async def start_quiz(message: types.Message, state: FSMContext):
