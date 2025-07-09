@@ -279,6 +279,48 @@ questions += [
         ]
     }
 ]
+questions += [
+    {
+        "text": "24) В якому випадку правильно поклеєний QR-код на плату DualCurtain Outdoor?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/24.jpg",
+        "options": [
+            ("1", False),
+            ("2", True),
+            ("Будь-який варіант", False),
+            ("QR не потрібен", False)
+        ]
+    },
+    {
+        "text": "25) В якому випадку правильно поклеєний QR-код на плату Socket?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/25.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("QR не клеїться", False),
+            ("Будь-який варіант", False)
+        ]
+    },
+    {
+        "text": "26) Яких елементів не вистачає на платі WaterStop PWB?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/26.jpg",
+        "options": [
+            ("Холдер контактних клем", True),
+            ("Кнопка", False),
+            ("Світлодіод", False),
+            ("Антена", False)
+        ]
+    },
+    {
+        "text": "27) В якому випадку правильно поклеєний QR-код на плату WaterStop PWB?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/27.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("Обидва варіанти правильні", False),
+            ("QR не клеїться", False)
+        ]
+    }
+]
 
 @dp.message(F.text.startswith("/start"))
 async def start_quiz(message: types.Message, state: FSMContext):
