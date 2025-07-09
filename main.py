@@ -25,7 +25,7 @@ def run_flask():
 
 Thread(target=run_flask).start()
 
-# 🤖 Telegram-бот
+# 🤖 Telegram
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
 bot = Bot(token=TOKEN)
@@ -35,7 +35,7 @@ class QuizState(StatesGroup):
     question_index = State()
     selected_options = State()
     temp_selected = State()
-    current_options = State()
+    current_message_id = State()
 
 # ❓ Питання
 questions = [
@@ -59,7 +59,6 @@ questions = [
             ("Кварцовий резонатор", True)
         ]
     }
-    # Додай ще питання у цьому ж форматі
 ]
 
 @dp.message(F.text.startswith("/start"))
@@ -71,37 +70,58 @@ async def start_quiz(message: types.Message, state: FSMContext):
         selected_options=[],
         temp_selected=set()
     )
-    await send_question(message, state)
+    await send_question(message.chat.id, state)
 
-async def send_question(target, state: FSMContext):
+async def send_question(chat_id, state: FSMContext):
     data = await state.get_data()
     index = data["question_index"]
 
     if index >= len(questions):
+        selected_all = data.get("selected_options", [])
         correct = 0
         for i, q in enumerate(questions):
-            correct_answers = {j for j, (_, is_correct) in enumerate(q["options"]) if is_correct}
-            user_selected = set(data["selected_options"][i])
-            if correct_answers == user_selected:
+            correct_indices = {j for j, (_, ok) in enumerate(q["options"]) if ok}
+            user_selected = set(selected_all[i])
+            if correct_indices == user_selected:
                 correct += 1
-        total = len(questions)
-        # Показ результату з кнопкою
-        await bot.send_message(target.chat.id,
-            f"📊 Результат тесту: {correct} з {total}",
+        await bot.send_message(chat_id,
+            f"📊 Результат тесту: {correct} з {len(questions)}",
             reply_markup=InlineKeyboardMarkup(
                 inline_keyboard=[
                     [InlineKeyboardButton(text="📋 Детальна інформація", callback_data="details")]
                 ]
             )
         )
-        await state.update_data(show_details=True)
         return
 
     question = questions[index]
     options = list(enumerate(question["options"]))
-    await state.update_data(current_options=options)
+    await state.update_data(current_options=options, temp_selected=set())
 
+    buttons = []
+    for i, (text, _) in options:
+        prefix = "◻️ "
+        buttons.append([InlineKeyboardButton(text=prefix + text, callback_data=f"opt_{i}")])
+    buttons.append([InlineKeyboardButton(text="Підтвердити", callback_data="confirm")])
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+
+    msg = await bot.send_photo(chat_id, photo=question["image"], caption=question["text"], reply_markup=keyboard)
+    await state.update_data(current_message_id=msg.message_id)
+
+@dp.callback_query(F.data.startswith("opt_"))
+async def toggle_option(callback: CallbackQuery, state: FSMContext):
+    index = int(callback.data.split("_")[1])
+    data = await state.get_data()
     selected = data.get("temp_selected", set())
+
+    if index in selected:
+        selected.remove(index)
+    else:
+        selected.add(index)
+
+    await state.update_data(temp_selected=selected)
+
+    options = data["current_options"]
     buttons = []
     for i, (text, _) in options:
         prefix = "✅ " if i in selected else "◻️ "
@@ -109,22 +129,11 @@ async def send_question(target, state: FSMContext):
     buttons.append([InlineKeyboardButton(text="Підтвердити", callback_data="confirm")])
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
-    if question.get("image"):
-        await bot.send_photo(target.chat.id, photo=question["image"], caption=question["text"], reply_markup=keyboard)
-    else:
-        await bot.send_message(target.chat.id, text=question["text"], reply_markup=keyboard)
-
-@dp.callback_query(F.data.startswith("opt_"))
-async def toggle_option(callback: CallbackQuery, state: FSMContext):
-    index = int(callback.data.split("_")[1])
-    data = await state.get_data()
-    selected = data.get("temp_selected", set())
-    if index in selected:
-        selected.remove(index)
-    else:
-        selected.add(index)
-    await state.update_data(temp_selected=selected)
-    await send_question(callback.message, state)
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=data["current_message_id"],
+        reply_markup=keyboard
+    )
 
 @dp.callback_query(F.data == "confirm")
 async def confirm_answer(callback: CallbackQuery, state: FSMContext):
@@ -142,7 +151,7 @@ async def confirm_answer(callback: CallbackQuery, state: FSMContext):
         question_index=data["question_index"] + 1,
         temp_selected=set()
     )
-    await send_question(callback.message, state)
+    await send_question(callback.message.chat.id, state)
 
 @dp.callback_query(F.data == "details")
 async def show_details(callback: CallbackQuery, state: FSMContext):
@@ -167,7 +176,7 @@ async def show_details(callback: CallbackQuery, state: FSMContext):
         for block in text_blocks:
             await bot.send_message(callback.message.chat.id, block, parse_mode="Markdown")
 
-# 🚀 Запуск бота
+# 🚀 Запуск
 async def main():
     await dp.start_polling(bot)
 
