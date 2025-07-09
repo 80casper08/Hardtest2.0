@@ -321,6 +321,68 @@ questions += [
         ]
     }
 ]
+questions += [
+    {
+        "text": "28) В якому випадку правильно поклеєний QR-код на плату MotionProtect?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/28.jpg",
+        "options": [
+            ("1", False),
+            ("2", True),
+            ("Будь-який варіант", False),
+            ("QR не клеїться", False)
+        ]
+    },
+    {
+        "text": "29) В якому випадку правильно поклеєний QR-код на плату Hub 2?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/29.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("3", False),
+            ("QR не клеїться", False)
+        ]
+    },
+    {
+        "text": "30) В якому випадку правильно поклеєний QR-код на плату ocBridge Plus?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/30.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("Будь-який варіант", False),
+            ("QR не клеїться", False)
+        ]
+    },
+    {
+        "text": "31) В якому випадку правильно поклеєний QR-код на плату LightSwitch MBR?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/31.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("QR не клеїться", False),
+            ("Будь-який варіант", False)
+        ]
+    },
+    {
+        "text": "32) В якому випадку правильно поклеєний QR-код на плату LightSwitch MBR?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/32.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("QR не клеїться", False),
+            ("Обидва варіанти правильні", False)
+        ]
+    },
+    {
+        "text": "33) В якому випадку правильно поклеєний QR-код на плату HomeSiren?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/33.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("QR не клеїться", False),
+            ("Обидва варіанти правильні", False)
+        ]
+    }
+]
 
 @dp.message(F.text.startswith("/start"))
 async def start_quiz(message: types.Message, state: FSMContext):
