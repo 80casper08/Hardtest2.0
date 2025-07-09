@@ -6,10 +6,28 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from dotenv import load_dotenv
+from flask import Flask
+from threading import Thread
 
+# 🌍 Flask-сервер для Render
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Bot is running!"
+
+@app.route("/ping")
+def ping():
+    return "OK", 200
+
+def run_flask():
+    app.run(host="0.0.0.0", port=8080)
+
+Thread(target=run_flask).start()
+
+# 🤖 Telegram-бот
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
-
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
@@ -18,7 +36,7 @@ class QuizState(StatesGroup):
     selected_options = State()
     temp_selected = State()
 
-# Список питань
+# ❓ Питання
 questions = [
     {
         "text": "1) Яких елементів не вистачає на платі KeyPad?",
@@ -116,8 +134,10 @@ async def confirm_answer(callback: CallbackQuery, state: FSMContext):
     )
     await send_question(callback.message, state)
 
+# 🚀 Запуск Telegram-бота
 async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
+
