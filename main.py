@@ -237,6 +237,48 @@ questions += [
         ]
     }
 ]
+questions += [
+    {
+        "text": "20) Як для MotionProtect Outdoor правильно закріпляти решту QR-коду + CE для передачі плати на складання?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/20.jpg",
+        "options": [
+            ("Варіант 1", True),
+            ("Варіант 2", False),
+            ("Будь-який варіант", False),
+            ("QR не клеїться", False)
+        ]
+    },
+    {
+        "text": "21) В якому випадку правильно поклеєний QR-код на плату KeyPad?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/21.jpg",
+        "options": [
+            ("1", False),
+            ("2", True),
+            ("QR не клеїться", False),
+            ("Будь-який варіант", False)
+        ]
+    },
+    {
+        "text": "22) В якому випадку правильно поклеєний QR-код на плату DoubleButton?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/22.jpg",
+        "options": [
+            ("1", True),
+            ("2", False),
+            ("3", False),
+            ("Будь-який варіант", False)
+        ]
+    },
+    {
+        "text": "23) Яких елементів не вистачає на платі PanicButton?",
+        "image": "https://raw.githubusercontent.com/80casper08/Hardtest2.0/main/images/23.jpg",
+        "options": [
+            ("Світлодіод", True),
+            ("Кнопка", False),
+            ("Антена", False),
+            ("Холдер батарейки", False)
+        ]
+    }
+]
 
 @dp.message(F.text.startswith("/start"))
 async def start_quiz(message: types.Message, state: FSMContext):
